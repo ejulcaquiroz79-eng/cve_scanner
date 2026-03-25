@@ -7,13 +7,25 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import { useEffect, useRef } from "react";
 import type { Vulnerabilidad } from "./types";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
 export function GraficoSeveridad({ data }: { data: Vulnerabilidad[] }) {
-  const severidades = ["LOW", "MEDIUM", "HIGH", "CRITICAL"];
+  const chartRef = useRef<any>(null);
+  const theme = document.documentElement.getAttribute("data-theme");
 
+  useEffect(() => {
+    return () => {
+      if (chartRef.current) chartRef.current.destroy();
+    };
+  }, []);
+
+  const styles = getComputedStyle(document.documentElement);
+  const textColor = styles.getPropertyValue("--text").trim();
+
+  const severidades = ["LOW", "MEDIUM", "HIGH", "CRITICAL"];
   const conteo = severidades.map(
     (sev) => data.filter((v) => v.severidad === sev).length
   );
@@ -24,7 +36,12 @@ export function GraficoSeveridad({ data }: { data: Vulnerabilidad[] }) {
       {
         label: "Cantidad",
         data: conteo,
-        backgroundColor: ["#22c55e", "#eab308", "#f97316", "#ef4444"],
+        backgroundColor: [
+          styles.getPropertyValue("--chart-low").trim(),
+          styles.getPropertyValue("--chart-medium").trim(),
+          styles.getPropertyValue("--chart-high").trim(),
+          styles.getPropertyValue("--chart-critical").trim(),
+        ],
       },
     ],
   };
@@ -32,14 +49,23 @@ export function GraficoSeveridad({ data }: { data: Vulnerabilidad[] }) {
   const options = {
     responsive: true,
     plugins: {
-      legend: { labels: { color: "#e5e7eb" } },
+      legend: { labels: { color: textColor } },
       tooltip: { enabled: true },
     },
     scales: {
-      x: { ticks: { color: "#e5e7eb" } },
-      y: { ticks: { color: "#e5e7eb" } },
+      x: { ticks: { color: "#0EA5E9" }
+ },
+      y: {
+        ticks: {
+          color: "#0EA5E9",
+          stepSize: 1,
+          precision: 0,
+        },
+        beginAtZero: true,
+      },
     },
   };
 
-  return <Bar data={chartData} options={options} />;
+  return <Bar key={theme} ref={chartRef} data={chartData} options={options} />;
 }
+

@@ -1,10 +1,12 @@
 #!/bin/bash
 
-# Iniciar cron
+echo "=== Iniciando cron ==="
 cron
 
-# Ejecutar el scanner en segundo plano
-python3 /app/scanner.py &
+echo "=== Ejecutando escáner de CVE ==="
+python3 /app/scanner.py
+echo "=== Escáner finalizado ==="
 
-# Iniciar Flask en primer plano (mantiene el contenedor vivo)
+echo "=== Iniciando servidor Flask ==="
 python3 /app/server.py
+

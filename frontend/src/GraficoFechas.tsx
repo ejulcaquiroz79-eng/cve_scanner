@@ -8,6 +8,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import { useEffect, useRef } from "react";
 import type { Vulnerabilidad } from "./types";
 
 ChartJS.register(
@@ -20,15 +21,26 @@ ChartJS.register(
 );
 
 export function GraficoFechas({ data }: { data: Vulnerabilidad[] }) {
+  const chartRef = useRef<any>(null);
+  const theme = document.documentElement.getAttribute("data-theme");
+
+  useEffect(() => {
+    return () => {
+      if (chartRef.current) chartRef.current.destroy();
+    };
+  }, []);
+
   if (data.length === 0) {
     return <p>No hay datos suficientes para generar el gráfico.</p>;
   }
 
-  // Agrupar vulnerabilidades por fecha_detectado
-  const conteoPorFecha: Record<string, number> = {};
+  const styles = getComputedStyle(document.documentElement);
+  const textColor = styles.getPropertyValue("--text").trim();
+  const lineColor = styles.getPropertyValue("--chart-line").trim();
 
+  const conteoPorFecha: Record<string, number> = {};
   data.forEach((v) => {
-    const fecha = v.fecha_detectado.split("T")[0]; // Solo YYYY-MM-DD
+    const fecha = v.fecha_detectado.split("T")[0];
     conteoPorFecha[fecha] = (conteoPorFecha[fecha] || 0) + 1;
   });
 
@@ -41,10 +53,10 @@ export function GraficoFechas({ data }: { data: Vulnerabilidad[] }) {
       {
         label: "Vulnerabilidades detectadas",
         data: valores,
-        borderColor: "#38bdf8",
-        backgroundColor: "rgba(56, 189, 248, 0.3)",
+        borderColor: lineColor,
+        backgroundColor: lineColor + "33",
         tension: 0.3,
-        fill: true,
+        fill: false,
       },
     ],
   };
@@ -52,14 +64,22 @@ export function GraficoFechas({ data }: { data: Vulnerabilidad[] }) {
   const options = {
     responsive: true,
     plugins: {
-      legend: { labels: { color: "#e5e7eb" } },
+      legend: { labels: { color: textColor } },
       tooltip: { enabled: true },
     },
     scales: {
-      x: { ticks: { color: "#e5e7eb" } },
-      y: { ticks: { color: "#e5e7eb" } },
+      x: { ticks: { color: "#0EA5E9" } },
+      y: {
+        ticks: {
+          color: "#0EA5E9",
+          stepSize: 1,
+          precision: 0,
+        },
+        beginAtZero: true,
+      },
     },
   };
 
-  return <Line data={chartData} options={options} />;
+  return <Line key={theme} ref={chartRef} data={chartData} options={options} />;
 }
+

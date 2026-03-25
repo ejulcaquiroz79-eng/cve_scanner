@@ -9,8 +9,11 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copiar el scanner
+# Copiar el scanner principal
 COPY scanner.py /app/scanner.py
+
+# Copiar el módulo de drivers
+COPY drivers_scanner.py /app/drivers_scanner.py
 
 # Copiar el servidor Flask
 COPY server.py /app/server.py
@@ -26,9 +29,12 @@ RUN chmod 0644 /etc/cron.d/cve-cron
 # Crear archivo de log
 RUN touch /var/log/cron.log
 
-# Copiar start.sh (ESTE ERA EL PASO QUE FALTABA)
+# Copiar start.sh
 COPY start.sh /app/start.sh
 RUN chmod +x /app/start.sh
+
+# Crear carpeta output si no existe
+RUN mkdir -p /app/output
 
 # ENTRYPOINT para ejecutar el scanner + cron + flask
 ENTRYPOINT ["/app/start.sh"]

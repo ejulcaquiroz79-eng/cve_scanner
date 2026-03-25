@@ -1,39 +1,51 @@
-/* ============================
-   VARIABLES DE TEMA
-============================ */
+/* ============================================================
+   SISTEMA DE TEMAS GLOBAL (DARK AZUL MODERNO + LIGHT MODERNO)
+   Este archivo controla TODOS los colores del dashboard.
+============================================================ */
 
+/* ----------------------------
+   🎨 Tema Azul Moderno (Dark)
+   - Es el tema por defecto
+   - Inspirado en dashboards modernos
+---------------------------- */
 :root {
-  --bg: #ffffff;
+  --bg: #0a192f;          /* Fondo general */
+  --bg-card: #112240;     /* Fondo de tarjetas */
+  --text: #e6f1ff;        /* Texto principal */
+  --text-muted: #8892b0;  /* Texto secundario */
+  --border: #233554;      /* Bordes */
+
+  /* Colores para gráficos */
+  --chart-low: #22c55e;
+  --chart-medium: #eab308;
+  --chart-high: #f97316;
+  --chart-critical: #ef4444;
+  --chart-line: #64ffda;
+  --chart-donut: #3b82f6;
+}
+
+/* ----------------------------
+   🌞 Tema Claro Moderno
+   - Se activa con data-theme="light"
+---------------------------- */
+[data-theme="light"] {
+  --bg: #f5f7fa;
+  --bg-card: #ffffff;
   --text: #1a1a1a;
-  --text-h: #08060d;
-  --card: #f2f2f2;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --shadow: rgba(0, 0, 0, 0.1) 0 10px 15px -3px,
-            rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+  --text-muted: #6b7280;
+  --border: #d1d5db;
+
+  --chart-low: #16a34a;
+  --chart-medium: #ca8a04;
+  --chart-high: #ea580c;
+  --chart-critical: #dc2626;
+  --chart-line: #2563eb;
+  --chart-donut: #3b82f6;
 }
 
-[data-theme="dark"] {
-  --bg: #121212;
-  --text: #eaeaea;
-  --text-h: #ffffff;
-  --card: #1e1e1e;
-  --border: #2e303a;
-  --code-bg: #1f2028;
-  --accent: #c084fc;
-  --accent-bg: rgba(192, 132, 252, 0.15);
-  --accent-border: rgba(192, 132, 252, 0.5);
-  --shadow: rgba(0, 0, 0, 0.4) 0 10px 15px -3px,
-            rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-}
-
-/* ============================
-   ESTILOS GENERALES
-============================ */
-
+/* ----------------------------
+   🧱 Estilos base
+---------------------------- */
 body {
   margin: 0;
   background: var(--bg);
@@ -42,57 +54,17 @@ body {
 }
 
 #root {
-  width: 1126px;
-  max-width: 100%;
+  max-width: 1126px;
   margin: 0 auto;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  border-inline: 1px solid var(--border);
 }
 
-/* ============================
-   TIPOGRAFÍA
-============================ */
-
-h1, h2 {
-  color: var(--text-h);
-  margin: 0;
-}
-
-h1 {
-  font-size: 48px;
-  margin: 32px 0;
-}
-
-h2 {
-  font-size: 24px;
-  margin-bottom: 8px;
-}
-
-/* ============================
-   TARJETAS
-============================ */
-
-.card {
-  background-color: var(--card);
-  padding: 16px;
-  border-radius: 8px;
-  margin-bottom: 20px;
-  box-shadow: var(--shadow);
-}
-
-/* ============================
-   BOTÓN DE TEMA
-============================ */
-
-.theme-button {
-  padding: 8px 12px;
-  border-radius: 6px;
-  border: 1px solid var(--text);
-  background: var(--card);
-  color: var(--text);
-  cursor: pointer;
-  margin-top: 10px;
+/* ----------------------------
+   ✨ Transición suave entre temas
+---------------------------- */
+* {
+  transition: background-color 0.25s ease,
+              color 0.25s ease,
+              border-color 0.25s ease;
 }
 

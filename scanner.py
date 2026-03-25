@@ -1,3 +1,5 @@
+from drivers_scanner import scan_drivers_summary
+
 import subprocess
 import xml.etree.ElementTree as ET
 import requests
@@ -123,14 +125,15 @@ def clasificar_cvss(score):
     else:
         return "CRITICAL"
 
-def generar_reporte(resultados, ip):
+def generar_reporte(resultados, ip, drivers_info):
     os.makedirs("output", exist_ok=True)
 
     reporte_final = {
         "fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "ip_escaneada": ip,
         "total_cves": len(resultados),
-        "vulnerabilidades": resultados
+        "vulnerabilidades": resultados,
+        "drivers": drivers_info
     }
 
     with open("output/reporte.json", "w") as f:
@@ -292,7 +295,6 @@ def main():
 
             enlace = f"https://www.cve.org/CVERecord?id={cve_id}"
 
-            # SCORE Y SEVERIDAD
             try:
                 score = item["cve"]["metrics"]["cvssMetricV31"][0]["cvssData"]["baseScore"]
                 categoria = item["cve"]["metrics"]["cvssMetricV31"][0]["cvssData"]["baseSeverity"]
@@ -303,25 +305,21 @@ def main():
             if not severidad_valida(score):
                 continue
 
-            # FECHA PUBLICACIÓN
             try:
                 fecha_publicacion = item["cve"]["published"].split("T")[0]
             except:
                 fecha_publicacion = "desconocida"
 
-            # DESCRIPCIÓN
             try:
                 descripcion = item["cve"]["descriptions"][0]["value"]
             except:
                 descripcion = "Descripción no disponible"
 
-            # VECTOR
             try:
                 vector = item["cve"]["metrics"]["cvssMetricV31"][0]["cvssData"]["vectorString"]
             except:
                 vector = "No disponible"
 
-            # IMPACTO CIA
             try:
                 impacto_conf = item["cve"]["metrics"]["cvssMetricV31"][0]["cvssData"]["confidentialityImpact"]
                 impacto_int = item["cve"]["metrics"]["cvssMetricV31"][0]["cvssData"]["integrityImpact"]
@@ -329,7 +327,6 @@ def main():
             except:
                 impacto_conf = impacto_int = impacto_disp = "UNKNOWN"
 
-            # FIX
             fix = "No disponible"
             try:
                 for node in item["cve"]["configurations"]["nodes"]:
@@ -339,7 +336,6 @@ def main():
             except:
                 pass
 
-            # SUGERENCIA
             if fix != "No disponible":
                 sugerencia = f"Aplicar actualización recomendada: {fix}"
             else:
@@ -377,7 +373,11 @@ def main():
     except Exception as e:
         print(f"⚠️ No se pudo ordenar el reporte: {e}")
 
-    generar_reporte(reporte, ip)
+    # 🔥 NUEVO: escaneo de drivers sin root
+    print("📌 Escaneando información del sistema (drivers/kernel)...")
+    drivers_info = scan_drivers_summary()
+
+    generar_reporte(reporte, ip, drivers_info)
     generar_reporte_html(reporte, ip)
 
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "Ejecutando el scanner de CVE..."
-python3 /app/src/scanner.py
+python3 /app/scanner.py
 
 echo "Reporte generado en /app/output/reporte.csv"
 
