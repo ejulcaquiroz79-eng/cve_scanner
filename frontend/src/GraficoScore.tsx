@@ -21,21 +21,39 @@ export function GraficoScore({ data }: { data: Vulnerabilidad[] }) {
   }, []);
 
   if (data.length === 0) {
-    return <p>No hay datos suficientes para calcular el score promedio.</p>;
+    return <p>No hay datos suficientes para calcular el score ponderado.</p>;
   }
 
   const styles = getComputedStyle(document.documentElement);
   const textColor = styles.getPropertyValue("--text").trim();
-  const donutColor = styles.getPropertyValue("--chart-donut").trim();
 
-  const promedio =
-    data.reduce((acc, v) => acc + v.score, 0) / data.length;
+  // Contar severidades (CORREGIDO: severidad)
+  const low = data.filter(v => v.severidad === "LOW").length;
+  const medium = data.filter(v => v.severidad === "MEDIUM").length;
+  const high = data.filter(v => v.severidad === "HIGH").length;
+  const critical = data.filter(v => v.severidad === "CRITICAL").length;
+
+  const total = low + medium + high + critical;
+
+  const scoreBase =
+    total === 0
+      ? 0
+      : (low * 1 + medium * 2 + high * 3 + critical * 4) / total;
+
+  const scoreFinal = (scoreBase / 4) * 10;
+
+  // 🎨 Color dinámico según el score
+  let donutColor = "#22c55e"; // verde
+
+  if (scoreFinal >= 8) donutColor = "#ef4444";       // rojo
+  else if (scoreFinal >= 6) donutColor = "#f97316";  // naranja
+  else if (scoreFinal >= 3) donutColor = "#eab308";  // amarillo
 
   const chartData = {
-    labels: ["Score promedio"],
+    labels: ["Score Ponderado"],
     datasets: [
       {
-        data: [promedio, 10 - promedio],
+        data: [scoreFinal, 10 - scoreFinal],
         backgroundColor: [donutColor, textColor + "22"],
         borderWidth: 0,
       },
@@ -52,7 +70,9 @@ export function GraficoScore({ data }: { data: Vulnerabilidad[] }) {
 
   return (
     <div style={{ width: "250px", margin: "0 auto" }}>
+      
       <Doughnut key={theme} ref={chartRef} data={chartData} options={options} />
+
       <p
         style={{
           textAlign: "center",
@@ -61,7 +81,7 @@ export function GraficoScore({ data }: { data: Vulnerabilidad[] }) {
           color: "#0EA5E9",
         }}
       >
-        {promedio.toFixed(2)} / 10
+        {scoreFinal.toFixed(2)} / 10
       </p>
     </div>
   );

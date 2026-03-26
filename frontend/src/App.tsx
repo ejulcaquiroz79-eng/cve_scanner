@@ -101,7 +101,7 @@ function App() {
 
         {/* GRÁFICO SCORE */}
         <section className="card">
-          <h2>Score promedio</h2>
+          <h2>Score Ponderado</h2>
           <GraficoScore data={vulns} />
         </section>
 
