@@ -11,6 +11,30 @@ import sys
 
 API_NVD = "https://services.nvd.nist.gov/rest/json/cves/2.0?keywordSearch="
 
+# 🔥 NUEVO: función para guardar historial
+def guardar_historial(total):
+    ruta = "output/historial.json"
+
+    # Crear archivo si no existe
+    if not os.path.exists(ruta):
+        with open(ruta, "w") as f:
+            json.dump([], f)
+
+    # Leer historial existente
+    with open(ruta, "r") as f:
+        historial = json.load(f)
+
+    # Agregar nuevo registro
+    historial.append({
+        "fecha": datetime.now().strftime("%Y-%m-%d"),
+        "total": total
+    })
+
+    # Guardar historial actualizado
+    with open(ruta, "w") as f:
+        json.dump(historial, f, indent=2)
+
+
 def severidad_valida(score, minimo=4.0):
     return score >= minimo
 
@@ -373,12 +397,14 @@ def main():
     except Exception as e:
         print(f"⚠️ No se pudo ordenar el reporte: {e}")
 
-    # 🔥 NUEVO: escaneo de drivers sin root
     print("📌 Escaneando información del sistema (drivers/kernel)...")
     drivers_info = scan_drivers_summary()
 
     generar_reporte(reporte, ip, drivers_info)
     generar_reporte_html(reporte, ip)
+
+    # 🔥 NUEVO: guardar historial de vulnerabilidades detectadas
+    guardar_historial(len(reporte))
 
 
 if __name__ == "__main__":

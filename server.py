@@ -4,14 +4,14 @@ import json
 import os
 
 app = Flask(__name__)
-CORS(app)
+CORS(app)  # Permite peticiones desde el frontend
 
 # -----------------------------
-# Endpoint original (lo mantenemos)
+# Endpoint original
 # -----------------------------
 @app.get("/reporte")
 def get_reporte():
-    ruta = "/app/output/reporte.json"
+    ruta = "output/reporte.json"
     if not os.path.exists(ruta):
         return jsonify({"error": "reporte.json no encontrado"}), 404
 
@@ -21,11 +21,11 @@ def get_reporte():
     return jsonify(data)
 
 # -----------------------------
-# NUEVO: Endpoint para React
+# Endpoint para React
 # -----------------------------
 @app.get("/api/reporte")
 def api_reporte():
-    ruta = "/app/output/reporte.json"
+    ruta = "output/reporte.json"
     if not os.path.exists(ruta):
         return jsonify({"error": "reporte.json no encontrado"}), 404
 
@@ -35,11 +35,11 @@ def api_reporte():
     return jsonify(data)
 
 # -----------------------------
-# NUEVO: Endpoint solo drivers
+# Endpoint solo drivers
 # -----------------------------
 @app.get("/api/drivers")
 def api_drivers():
-    ruta = "/app/output/reporte.json"
+    ruta = "output/reporte.json"
     if not os.path.exists(ruta):
         return jsonify({"error": "reporte.json no encontrado"}), 404
 
@@ -49,7 +49,24 @@ def api_drivers():
     return jsonify(data.get("drivers", {}))
 
 # -----------------------------
+# NUEVO: Endpoint historial
+# -----------------------------
+@app.get("/api/historial")
+def api_historial():
+    ruta = "output/historial.json"
+
+    # Si no existe, devolver lista vacía
+    if not os.path.exists(ruta):
+        return jsonify([])
+
+    with open(ruta, "r") as f:
+        data = json.load(f)
+
+    return jsonify(data)
+
+# -----------------------------
 # Inicio del servidor
 # -----------------------------
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=9000)
+
