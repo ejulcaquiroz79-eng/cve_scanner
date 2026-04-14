@@ -49,7 +49,7 @@ def api_drivers():
     return jsonify(data.get("drivers", {}))
 
 # -----------------------------
-# NUEVO: Endpoint historial
+# Endpoint historial
 # -----------------------------
 @app.get("/api/historial")
 def api_historial():
@@ -63,6 +63,23 @@ def api_historial():
         data = json.load(f)
 
     return jsonify(data)
+
+# -----------------------------
+# NUEVO: Endpoint para resetear historial
+# -----------------------------
+@app.post("/api/reset")
+def reset_data():
+    try:
+        ruta = "output/historial.json"
+
+        # Sobrescribe el archivo con una lista vacía
+        with open(ruta, "w") as f:
+            f.write("[]")
+
+        return jsonify({"status": "ok", "message": "Historial reiniciado correctamente."})
+
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 # -----------------------------
 # Inicio del servidor

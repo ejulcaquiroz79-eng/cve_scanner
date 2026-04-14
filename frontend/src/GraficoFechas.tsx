@@ -27,6 +27,9 @@ export function GraficoFechas() {
   const [values, setValues] = useState<number[] | null>(null);
   const [tendenciaTexto, setTendenciaTexto] = useState<string>("");
 
+  // 🔹 NUEVO: Guardamos el historial completo para poder restaurarlo
+  const [historialOriginal, setHistorialOriginal] = useState<any[]>([]);
+
   useEffect(() => {
     return () => {
       if (chartRef.current) chartRef.current.destroy();
@@ -37,6 +40,7 @@ export function GraficoFechas() {
     fetch("http://localhost:9000/api/historial")
       .then((res) => res.json())
       .then((data) => {
+        setHistorialOriginal(data); // Guardamos copia original
         setLabels(data.map((h: any) => h.fecha));
         setValues(data.map((h: any) => h.total));
       })
@@ -44,12 +48,12 @@ export function GraficoFechas() {
   }, []);
 
   const styles = getComputedStyle(document.documentElement);
-  const textColor = styles.getPropertyValue("--text").trim();
-  const baseLineColor = styles.getPropertyValue("--chart-line").trim();
+  const legendColor = "#38BDF8";
 
-  const { tendencia, dynamicColor, texto } = useMemo(() => {
+  // 🔹 Cálculo de tendencia (sin cambios)
+  const { dynamicColor, texto } = useMemo(() => {
     if (!values || values.length === 0) {
-      return { tendencia: [], dynamicColor: baseLineColor, texto: "" };
+      return { dynamicColor: "#0EA5E9", texto: "" };
     }
 
     const n = values.length;
@@ -62,11 +66,8 @@ export function GraficoFechas() {
     const sumX2 = x.reduce((acc, xi) => acc + xi * xi, 0);
 
     const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
-    const intercept = (sumY - slope * sumX) / n;
 
-    const tendencia = x.map((xi) => slope * xi + intercept);
-
-    let dynamicColor = baseLineColor;
+    let dynamicColor = "#0EA5E9";
     let texto = "";
 
     if (slope > 0.05) {
@@ -80,8 +81,8 @@ export function GraficoFechas() {
       texto = "➖ Tendencia estable";
     }
 
-    return { tendencia, dynamicColor, texto };
-  }, [values, baseLineColor]);
+    return { dynamicColor, texto };
+  }, [values]);
 
   useEffect(() => {
     setTendenciaTexto(texto);
@@ -108,44 +109,113 @@ export function GraficoFechas() {
         pointRadius: 5,
         pointBackgroundColor: dynamicColor,
       },
-      
     ],
   };
 
-   const legendColor = "#38BDF8"; // color visible en ambos temas
+  const options = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: "top",
+        labels: {
+          color: legendColor,
+          font: {
+            size: 16,
+            weight: "bold",
+          },
+          boxWidth: 25,
+          boxHeight: 15,
+          padding: 20,
+        },
+      },
+      tooltip: { enabled: true },
+    },
+    scales: {
+      x: { ticks: { color: legendColor } },
+      y: {
+        ticks: {
+          color: legendColor,
+          stepSize: 1,
+          precision: 0,
+        },
+        beginAtZero: true,
+      },
+    },
+  };
 
-   const options = {
-     responsive: true,
-     plugins: {
-       legend: {
-         position: "top",
-         labels: {
-           color: legendColor,
-           font: {
-             size: 16,
-             weight: "bold"
-           },
-           boxWidth: 25,
-           boxHeight: 15,
-           padding: 20
-         }
-       },
-       tooltip: { enabled: true }
-     },
-     scales: {
-       x: { ticks: { color: legendColor } },
-       y: {
-         ticks: {
-           color: legendColor,
-           stepSize: 1,
-           precision: 0
-         },
-        beginAtZero: true
-       }
-     }
-   };
+  // ---------------------------------------------------------
+  // 🔹🔹🔹 FUNCIONES NUEVAS (Punto 1 y 2) 🔹🔹🔹
+  // ---------------------------------------------------------
 
+  // 1️⃣ Reiniciar datos (con confirmación)
+  const handleReset = async () => {
+    const confirmar = window.confirm(
+      "¿Seguro que deseas eliminar todos los datos? Esta acción no se puede deshacer."
+    );
 
+    if (!confirmar) return;
+
+    await fetch("http://localhost:9000/api/reset", { method: "POST" });
+
+    setLabels([]);
+    setValues([]);
+  };
+
+  // 2️⃣ Promedio por día
+  const handlePromedioDia = () => {
+    const grupos: any = {};
+
+    historialOriginal.forEach((item) => {
+      const fecha = item.fecha.split("T")[0];
+      if (!grupos[fecha]) grupos[fecha] = [];
+      grupos[fecha].push(item.total);
+    });
+
+    const promedios = Object.entries(grupos).map(([fecha, valores]: any) => ({
+      fecha,
+      total: valores.reduce((a: number, b: number) => a + b, 0) / valores.length,
+    }));
+
+    setLabels(promedios.map((p) => p.fecha));
+    setValues(promedios.map((p) => p.total));
+  };
+
+  // 3️⃣ Promedio por semana
+  const handlePromedioSemana = () => {
+    const grupos: any = {};
+
+    historialOriginal.forEach((item) => {
+      const fecha = new Date(item.fecha);
+      const año = fecha.getFullYear();
+      const semana = Math.ceil(
+        (((fecha.getTime() - new Date(año, 0, 1).getTime()) / 86400000) +
+          new Date(año, 0, 1).getDay() +
+          1) /
+          7
+      );
+
+      const clave = `${año}-W${semana}`;
+
+      if (!grupos[clave]) grupos[clave] = [];
+      grupos[clave].push(item.total);
+    });
+
+    const promedios = Object.entries(grupos).map(([semana, valores]: any) => ({
+      fecha: semana,
+      total: valores.reduce((a: number, b: number) => a + b, 0) / valores.length,
+    }));
+
+    setLabels(promedios.map((p) => p.fecha));
+    setValues(promedios.map((p) => p.total));
+  };
+
+  // 4️⃣ Vista original
+  const handleVistaOriginal = () => {
+    setLabels(historialOriginal.map((h) => h.fecha));
+    setValues(historialOriginal.map((h) => h.total));
+  };
+
+  // ---------------------------------------------------------
 
   return (
     <div style={{ width: "100%", maxWidth: "650px", margin: "0 auto" }}>
@@ -164,6 +234,22 @@ export function GraficoFechas() {
       >
         {tendenciaTexto}
       </p>
+
+      {/* 🔹 BOTONES NUEVOS */}
+      <div className="flex gap-3 justify-center my-4">
+        <button onClick={handleReset} className="btn">
+          Reiniciar datos
+        </button>
+        <button onClick={handlePromedioDia} className="btn">
+          Promedio por día
+        </button>
+        <button onClick={handlePromedioSemana} className="btn">
+          Promedio por semana
+        </button>
+        <button onClick={handleVistaOriginal} className="btn">
+          Vista original
+        </button>
+      </div>
 
       <Line key={theme} ref={chartRef} data={chartData} options={options} />
     </div>
