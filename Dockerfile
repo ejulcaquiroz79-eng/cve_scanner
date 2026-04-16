@@ -1,43 +1,30 @@
 FROM python:3.10-slim
 
-# Instalar dependencias del sistema
 RUN apt update && apt install -y nmap cron
 
 WORKDIR /app
 
-# Instalar dependencias de Python
-COPY requirements.txt .
+# Copiar requirements
+COPY scanner_backend/requirements.txt .
+
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copiar el scanner principal
-COPY scanner.py /app/scanner.py
+# Copiar backend
+COPY scanner_backend/scanner.py /app/scanner.py
+COPY scanner_backend/drivers_scanner.py /app/drivers_scanner.py
+COPY scanner_backend/server.py /app/server.py
+COPY scanner_backend/run.sh /app/run.sh
+COPY scanner_backend/start.sh /app/start.sh
 
-# Copiar el módulo de drivers
-COPY drivers_scanner.py /app/drivers_scanner.py
+# Copiar cron
+COPY scanner_server/crontab.txt /etc/cron.d/cve-cron
+COPY scanner_server/run.sh /app/cron-run.sh
 
-# Copiar el servidor Flask
-COPY server.py /app/server.py
-
-# Copiar el script que ejecuta cron
-COPY server/run.sh /app/run.sh
-RUN chmod +x /app/run.sh
-
-# Copiar crontab
-COPY server/crontab.txt /etc/cron.d/cve-cron
+# Permisos
+RUN chmod +x /app/run.sh && chmod +x /app/start.sh && chmod +x /app/cron-run.sh
 RUN chmod 0644 /etc/cron.d/cve-cron
 
-# Crear archivo de log
-RUN touch /var/log/cron.log
+RUN crontab /etc/cron.d/cve-cron
 
-# Copiar start.sh
-COPY start.sh /app/start.sh
-RUN chmod +x /app/start.sh
-
-# Crear carpeta output si no existe
-RUN mkdir -p /app/output
-
-# ENTRYPOINT para ejecutar el scanner + cron + flask
-ENTRYPOINT ["/app/start.sh"]
-
-# CMD para iniciar cron (solo si no se pasan parámetros)
 CMD ["bash", "/app/run.sh"]
+

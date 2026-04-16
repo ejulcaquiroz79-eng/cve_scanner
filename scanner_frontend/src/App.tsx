@@ -39,7 +39,7 @@ function App() {
   const [vulns, setVulns] = useState<Vulnerabilidad[]>([]);
 
   useEffect(() => {
-    fetch("http://localhost:9000/reporte")
+    fetch("/api/reporte")
       .then(res => res.json())
       .then(data => {
         setVulns(data.vulnerabilidades || []);

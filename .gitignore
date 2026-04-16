@@ -32,7 +32,3 @@ output/*.csv
 *.tmp
 .DS_Store
 
-# -------------------------
-# Grafana (si ya no lo usas, puedes borrar esta línea)
-# -------------------------
-grafana_data/

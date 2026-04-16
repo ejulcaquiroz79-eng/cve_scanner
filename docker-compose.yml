@@ -1,25 +1,28 @@
-version: "3.3"
-
 services:
   scanner:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: cve_scanner
-    network_mode: host
-    volumes:
-      - ./output:/app/output
-    command: ["localhost"]
-
-  grafana:
-    image: grafana/grafana:latest
-    container_name: grafana_cve
     ports:
-      - "3000:3000"
+      - "5000:5000"
+      - "9000:9000"
     volumes:
-      - grafana_data:/var/lib/grafana"
+      - ./scanner_backend/output:/app/output
+    networks:
+      - internal_net
 
-volumes:
-  grafana_data:
+  frontend:
+    build:
+      context: ./scanner_frontend
+      dockerfile: Dockerfile
+    container_name: cve_frontend
+    ports:
+      - "5173:5173"
+    networks:
+      - internal_net
 
+networks:
+  internal_net:
+    driver: bridge
 
