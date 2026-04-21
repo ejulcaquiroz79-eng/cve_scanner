@@ -1,28 +1,46 @@
 services:
-  scanner:
+  backend:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: cve_scanner
-    ports:
-      - "5000:5000"
-      - "9000:9000"
+    container_name: cve_scanner_backend
+    privileged: true
     volumes:
       - ./scanner_backend/output:/app/output
+      - /proc:/proc
+      - /sys:/sys
+      - /dev:/dev
+    ports:
+      - "9000:9000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
-      - internal_net
+      - cve_net
+
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cve_scanner_server
+    privileged: true
+    volumes:
+      - ./scanner_backend/output:/app/output
+      - /proc:/proc
+      - /sys:/sys
+      - /dev:/dev
+    networks:
+      - cve_net
 
   frontend:
     build:
       context: ./scanner_frontend
       dockerfile: Dockerfile
-    container_name: cve_frontend
+    container_name: cve_scanner_frontend
     ports:
       - "5173:5173"
     networks:
-      - internal_net
+      - cve_net
 
 networks:
-  internal_net:
-    driver: bridge
+  cve_net:
 

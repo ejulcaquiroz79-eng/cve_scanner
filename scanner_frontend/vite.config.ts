@@ -8,8 +8,9 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'http://scanner:9000',
+        target: 'http://cve_scanner_server:9000',
         changeOrigin: true,
+        secure: false
       },
     },
   },

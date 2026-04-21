@@ -1,34 +1,33 @@
-# -------------------------
-# Python
-# -------------------------
+# ============================
+# PYTHON
+# ============================
 __pycache__/
 *.pyc
-*.pyo
-*.pyd
 
-# Virtual environments
-venv/
-.env/
+# ============================
+# NODE / VITE
+# ============================
+scanner_frontend/node_modules/
+scanner_frontend/dist/
 
-# -------------------------
-# Node / React
-# -------------------------
-node_modules/
-dist/
-.vite/
+# ============================
+# DOCKER OUTPUT (reportes generados)
+# ============================
+scanner_backend/output/
 
-# -------------------------
-# Docker / Scanner outputs
-# -------------------------
-output/
+# ============================
+# LOGS
+# ============================
 *.log
 
-# CSV generados
-output/*.csv
-
-# -------------------------
-# Temporary files
-# -------------------------
-*.tmp
+# ============================
+# SISTEMA / EDITORES
+# ============================
 .DS_Store
+Thumbs.db
 
+# ============================
+# ARCHIVOS TEMPORALES
+# ============================
+*.save
+*.save.*
