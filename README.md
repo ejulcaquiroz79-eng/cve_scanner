@@ -95,7 +95,7 @@ Esto levantará:
 | GET | **/api/historial** | Historial de escaneos |
 | POST | **/api/reset** | Limpia reportes e historial |
 
-Puedes pedirme una tabla extendida con endpoints_detallados.
+Si quieres una tabla extendida, pídeme endpoints_detallados.
 
 ---
 
@@ -141,7 +141,7 @@ scanner_server/
 
 ---
 
-# 🧪 Ejemplo de Flujo de Uso
+# 🧪 Flujo de Uso
 
 1. El usuario abre el dashboard  
 2. Presiona “Escanear”  
@@ -170,5 +170,5 @@ scanner_server/
 
 **Edinson Jair Julca Quiroz**  
 Estudiante de ASIR – Proyecto Intermodular  
-GitHub: `https://github.com/ejulcaquiroz79-eng` [(github.com in Bing)](https://www.bing.com/search?q="https%3A%2F%2Fgithub.com%2Fejulcaquiroz79-eng")  
+GitHub: `https://github.com/ejulcaquiroz79-eng` [(github.com in Bing)](https://www.bing.com/search?q="https%3A%2F%2Fgithub.com%2Fejulcaquiroz79-eng")
 
