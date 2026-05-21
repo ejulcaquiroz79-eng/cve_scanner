@@ -39,7 +39,7 @@ function App() {
      - Genera un nuevo reporte y actualiza historial
   ------------------------------------------------------------ */
   useEffect(() => {
-    fetch("/api/scan", { method: "POST" })
+    fetch("http://localhost:9000/api/scan", { method: "POST" })
       .then(() => console.log("Escaneo ejecutado"))
       .catch(() => console.log("Error ejecutando escaneo"));
   }, []);
@@ -50,7 +50,7 @@ function App() {
   const [vulns, setVulns] = useState<Vulnerabilidad[]>([]);
 
   useEffect(() => {
-    fetch("/api/reporte")
+    fetch("http://localhost:9000/api/reporte")
       .then(res => res.json())
       .then(data => {
         setVulns(data.vulnerabilidades || []);
@@ -78,8 +78,14 @@ function App() {
           Cambiar tema
         </button>
         
+        {/* BOTÓN DRIVERS */}
         <a href="/sistema" className="theme-button">
           Información de drivers encontrados
+        </a>
+
+        {/* BOTÓN NUCLEI */}
+        <a href="/nuclei" className="theme-button">
+          Escáner Nuclei
         </a>
 
       </header>

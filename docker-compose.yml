@@ -5,6 +5,8 @@ services:
       dockerfile: Dockerfile
     container_name: cve_scanner_backend
     privileged: true
+    dns:
+      - 8.8.8.8
     volumes:
       - ./scanner_backend/output:/app/output
       - /proc:/proc
@@ -14,20 +16,6 @@ services:
       - "9000:9000"
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    networks:
-      - cve_net
-
-  server:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: cve_scanner_server
-    privileged: true
-    volumes:
-      - ./scanner_backend/output:/app/output
-      - /proc:/proc
-      - /sys:/sys
-      - /dev:/dev
     networks:
       - cve_net
 

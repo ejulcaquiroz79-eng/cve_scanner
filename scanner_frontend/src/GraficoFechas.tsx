@@ -9,6 +9,7 @@ import {
   Legend,
 } from "chart.js";
 import { useEffect, useRef, useState, useMemo } from "react";
+import type { Vulnerabilidad } from "./types";
 
 ChartJS.register(
   CategoryScale,
@@ -19,7 +20,10 @@ ChartJS.register(
   Legend
 );
 
-export function GraficoFechas() {
+// 🔹 Ahora acepta props correctamente
+export function GraficoFechas({ data }: { data: Vulnerabilidad[] }) {
+  void data; // <- Evita error TS por no usar la prop
+
   const chartRef = useRef<any>(null);
   const theme = document.documentElement.getAttribute("data-theme");
 
@@ -27,7 +31,7 @@ export function GraficoFechas() {
   const [values, setValues] = useState<number[] | null>(null);
   const [tendenciaTexto, setTendenciaTexto] = useState<string>("");
 
-  // 🔹 NUEVO: Guardamos el historial completo para poder restaurarlo
+  // 🔹 Guardamos historial original
   const [historialOriginal, setHistorialOriginal] = useState<any[]>([]);
 
   useEffect(() => {
@@ -37,20 +41,19 @@ export function GraficoFechas() {
   }, []);
 
   useEffect(() => {
-    fetch("/api/historial")
+    fetch("http://localhost:9000/api/historial")
       .then((res) => res.json())
       .then((data) => {
-        setHistorialOriginal(data); // Guardamos copia original
+        setHistorialOriginal(data);
         setLabels(data.map((h: any) => h.fecha));
         setValues(data.map((h: any) => h.total));
       })
       .catch((err) => console.error("Error cargando historial:", err));
   }, []);
 
-  const styles = getComputedStyle(document.documentElement);
   const legendColor = "#38BDF8";
 
-  // 🔹 Cálculo de tendencia (sin cambios)
+  // 🔹 Cálculo de tendencia
   const { dynamicColor, texto } = useMemo(() => {
     if (!values || values.length === 0) {
       return { dynamicColor: "#0EA5E9", texto: "" };
@@ -116,12 +119,12 @@ export function GraficoFechas() {
     responsive: true,
     plugins: {
       legend: {
-        position: "top",
+        position: "top" as const,
         labels: {
           color: legendColor,
           font: {
             size: 16,
-            weight: "bold",
+            weight: "bold" as const,   // 🔥 FIX REAL AQUÍ
           },
           boxWidth: 25,
           boxHeight: 15,
@@ -144,10 +147,9 @@ export function GraficoFechas() {
   };
 
   // ---------------------------------------------------------
-  // 🔹🔹🔹 FUNCIONES NUEVAS (Punto 1 y 2) 🔹🔹🔹
+  // 🔹 FUNCIONES NUEVAS
   // ---------------------------------------------------------
 
-  // 1️⃣ Reiniciar datos (con confirmación)
   const handleReset = async () => {
     const confirmar = window.confirm(
       "¿Seguro que deseas eliminar todos los datos? Esta acción no se puede deshacer."
@@ -155,13 +157,12 @@ export function GraficoFechas() {
 
     if (!confirmar) return;
 
-    await fetch("/api/reset", { method: "POST" });
+    await fetch("http://localhost:9000/api/reset", { method: "POST" });
 
     setLabels([]);
     setValues([]);
   };
 
-  // 2️⃣ Promedio por día
   const handlePromedioDia = () => {
     const grupos: any = {};
 
@@ -180,7 +181,6 @@ export function GraficoFechas() {
     setValues(promedios.map((p) => p.total));
   };
 
-  // 3️⃣ Promedio por semana
   const handlePromedioSemana = () => {
     const grupos: any = {};
 
@@ -209,7 +209,6 @@ export function GraficoFechas() {
     setValues(promedios.map((p) => p.total));
   };
 
-  // 4️⃣ Vista original
   const handleVistaOriginal = () => {
     setLabels(historialOriginal.map((h) => h.fecha));
     setValues(historialOriginal.map((h) => h.total));
@@ -235,7 +234,6 @@ export function GraficoFechas() {
         {tendenciaTexto}
       </p>
 
-      {/* 🔹 BOTONES NUEVOS */}
       <div className="flex gap-3 justify-center my-4">
         <button onClick={handleReset} className="btn">
           Reiniciar datos

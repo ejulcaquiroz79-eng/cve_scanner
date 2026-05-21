@@ -251,3 +251,42 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+
+/* ============================
+   ESTILOS PARA NUCLEI
+============================ */
+
+.form-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.input-text {
+  flex: 1;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg2);
+  color: var(--text);
+}
+
+.sev-badge {
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.sev-critical { background: #ff2e2e; color: white; }
+.sev-high { background: #ff7b00; color: white; }
+.sev-medium { background: #ffcc00; color: black; }
+.sev-low { background: #00c853; color: white; }
+.sev-info { background: #2196f3; color: white; }
+

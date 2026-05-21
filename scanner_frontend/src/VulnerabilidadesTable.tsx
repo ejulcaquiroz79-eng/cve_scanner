@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import type { Vulnerabilidad } from "./types";
 
 export function VulnerabilidadesTable({ data }: { data: Vulnerabilidad[] }) {

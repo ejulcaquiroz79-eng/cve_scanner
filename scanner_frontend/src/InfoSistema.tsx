@@ -1,14 +1,36 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
-export function InfoSistema({ data }) {
-  const [open, setOpen] = useState({
+// Tipado de la estructura que devuelve tu backend
+interface InfoSistemaData {
+  arquitectura?: string;
+  kernel_version?: string;
+  os_contenedor?: string;
+  escaneado?: string;
+  fecha_detectado?: string;
+
+  interfaces_red?: string[];
+  discos_detectados?: string[];
+  modulos_kernel?: string[];
+}
+
+interface Props {
+  data: InfoSistemaData;
+}
+
+export function InfoSistema({ data }: Props) {
+  const [open, setOpen] = useState<{
+    interfaces: boolean;
+    discos: boolean;
+    modulos: boolean;
+  }>({
     interfaces: false,
     discos: false,
     modulos: false,
   });
 
-  const toggle = (key) => {
-    setOpen(prev => ({ ...prev, [key]: !prev[key] }));
+  // Tipamos correctamente las claves permitidas
+  const toggle = (key: "interfaces" | "discos" | "modulos") => {
+    setOpen((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
   return (
@@ -27,7 +49,7 @@ export function InfoSistema({ data }) {
       </h3>
       {open.interfaces && (
         <ul>
-          {data.interfaces_red?.map((i, idx) => (
+          {data.interfaces_red?.map((i: string, idx: number) => (
             <li key={idx}>{i}</li>
           ))}
         </ul>
@@ -39,7 +61,7 @@ export function InfoSistema({ data }) {
       </h3>
       {open.discos && (
         <ul>
-          {data.discos_detectados?.map((d, idx) => (
+          {data.discos_detectados?.map((d: string, idx: number) => (
             <li key={idx}>{d}</li>
           ))}
         </ul>
@@ -51,7 +73,7 @@ export function InfoSistema({ data }) {
       </h3>
       {open.modulos && (
         <ul>
-          {data.modulos_kernel?.map((m, idx) => (
+          {data.modulos_kernel?.map((m: string, idx: number) => (
             <li key={idx}>{m}</li>
           ))}
         </ul>
