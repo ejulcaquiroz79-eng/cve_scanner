@@ -1,73 +1,130 @@
-# React + TypeScript + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# ⭐ **CONTENIDO FINAL PARA TU README.md**  
+(Copia y pega tal cual)
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+# 🔍 CVE Scanner – Escáner Automático de Vulnerabilidades con Nuclei
 
-## React Compiler
+Proyecto académico y profesional que integra **Nuclei**, **Docker**, **Python**, **React + Vite** y un **dashboard interactivo** para realizar escaneos automáticos de vulnerabilidades sobre el equipo donde se ejecuta el sistema.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## 🚀 Características principales
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- Escaneo automático del host al iniciar Docker  
+- Botón **“Escanear este equipo”** para ejecutar un análisis manual  
+- Integración completa con el motor oficial de **Nuclei**  
+- Dashboard moderno con:
+  - Tabla de vulnerabilidades
+  - Historial de escaneos
+  - Gráficos por severidad
+  - Información del sistema
+- Historial persistente en `nuclei_history.json`  
+- Arquitectura completamente dockerizada (backend + frontend + Nuclei)
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+---
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## 🧱 Arquitectura del proyecto
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+cve_scanner/
+│
+├── scanner_backend/
+│   ├── server.py              # API Flask + ejecución de Nuclei
+│   ├── start.sh               # Auto-scan al iniciar Docker
+│   ├── nuclei_scanner.py      # Lógica de ejecución
+│   ├── nuclei_history.json    # Historial (ignorado en Git)
+│   └── Dockerfile
+│
+├── scanner_frontend/
+│   ├── src/
+│   │   ├── App.tsx
+│   │   ├── NucleiScanner.tsx
+│   │   ├── Sistema.tsx
+│   │   ├── InfoSistema.tsx
+│   │   ├── VulnerabilidadesTable.tsx
+│   │   └── GraficoFechas.tsx
+│   ├── nginx.conf
+│   └── Dockerfile
+│
+├── docker-compose.yml
+└── README.md
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 🐳 Cómo ejecutar el proyecto
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### 1. Clonar el repositorio
+
+```bash
+git clone https://github.com/ejulcaquiroz79-eng/cve_scanner
+cd cve_scanner
 ```
+
+### 2. Construir y ejecutar
+
+```bash
+docker compose build --no-cache
+docker compose up
+```
+
+### 3. Acceder al dashboard
+
+```
+http://localhost:5173
+```
+
+---
+
+## ⚙️ Funcionamiento del auto-scan
+
+1. `start.sh` inicia Flask y cron  
+2. El backend detecta el host real  
+3. Ejecuta automáticamente:
+
+```
+POST /api/nuclei/run
+```
+
+4. Nuclei analiza el sistema usando plantillas oficiales  
+5. Los resultados se guardan en `nuclei_history.json`  
+6. El frontend muestra:
+   - Vulnerabilidades
+   - Severidades
+   - Historial
+   - Gráficos
+
+---
+
+## 🛠 Tecnologías utilizadas
+
+- Python 3.10  
+- Flask  
+- Nuclei (ProjectDiscovery)  
+- Docker & Docker Compose  
+- React + Vite  
+- Nginx  
+- Nmap  
+- Cron  
+
+---
+
+## 📁 Archivos ignorados
+
+- `scanner_backend/nuclei_history.json`  
+- Logs  
+- Builds del frontend  
+- Archivos temporales  
+- Salidas de Nuclei  
+- node_modules  
+- __pycache__  
+
+---
+
+## 👨‍💻 Autor
+
+**Jair Julca Quiroz**  
+Proyecto académico y profesional de ciberseguridad y automatización.
+

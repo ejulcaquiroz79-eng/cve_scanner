@@ -3,31 +3,76 @@
 # ============================
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+*.so
+
+# Entornos virtuales
+venv/
+.venv/
+env/
+.env/
+*.env
 
 # ============================
-# NODE / VITE
+# NODE / VITE (Frontend)
 # ============================
 scanner_frontend/node_modules/
 scanner_frontend/dist/
+scanner_frontend/.vite/
+scanner_frontend/.cache/
+
+# Archivos de build de producción
+scanner_frontend/build/
 
 # ============================
-# DOCKER OUTPUT (reportes generados)
+# DOCKER OUTPUT / REPORTES
 # ============================
 scanner_backend/output/
+scanner_backend/nuclei_output/
+
+# Historial generado por tu backend
+scanner_backend/nuclei_history.json
+
+# ============================
+# NUCLEI
+# ============================
+# Resultados temporales
+*.nuclei-temp
+*.nuclei-cache
 
 # ============================
 # LOGS
 # ============================
 *.log
+logs/
+scanner_backend/*.log
+scanner_frontend/*.log
 
 # ============================
 # SISTEMA / EDITORES
 # ============================
 .DS_Store
 Thumbs.db
+*.swp
+*.swo
+*.tmp
+
+# VSCode
+.vscode/
+
+# JetBrains
+.idea/
 
 # ============================
 # ARCHIVOS TEMPORALES
 # ============================
 *.save
 *.save.*
+*.bak
+
+# ============================
+# ARCHIVOS QUE NO DEBEN SUBIRSE
+# ============================
+scanner_backend/nuclei_scanner.py  # si es generado automáticamente
+scanner_frontend/nginx.conf        # si lo generas en build
