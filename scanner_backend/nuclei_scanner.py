@@ -64,7 +64,6 @@ def normalize_result(r):
             or datetime.datetime.now().isoformat()
         ),
 
-        # Se envía el raw completo por si lo necesitas en el futuro
         "raw": r
     }
 
@@ -74,10 +73,15 @@ def run_nuclei_scan(target: str):
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     output_file = f"{OUTPUT_DIR}/nuclei_{timestamp}.json"
 
+    # ⭐ CONFIGURACIÓN OPTIMIZADA
+    # - Usa las MISMAS plantillas que el escaneo automático
+    # - Limita velocidad y concurrencia para evitar congelamientos
     cmd = [
         "nuclei",
         "-u", target,
         "-t", "/root/nuclei-templates",
+        "-rate-limit", "50",     # evita saturación de red
+        "-c", "10",              # evita saturación de CPU
         "-json-export", output_file
     ]
 
@@ -97,13 +101,13 @@ def run_nuclei_scan(target: str):
             "results": []
         }, output_file
 
-    # ⭐ PARSEAR JSON GRANDE EN FORMATO ARRAY (TU CASO REAL)
+    # ⭐ PARSEAR JSON GRANDE EN FORMATO ARRAY
     results = []
 
     if os.path.exists(output_file):
         try:
             with open(output_file, "r") as f:
-                data = json.load(f)  # JSON normal con array grande
+                data = json.load(f)
 
                 if isinstance(data, list):
                     for item in data:

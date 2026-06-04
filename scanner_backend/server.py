@@ -168,6 +168,12 @@ def api_nuclei_run():
 def nuclei_history():
     history_file = "/app/nuclei_history.json"
 
+    # ⭐ Protección contra directorio corrupto
+    if os.path.isdir(history_file):
+        os.rmdir(history_file)
+        with open(history_file, "w") as f:
+            json.dump([], f)
+
     if not os.path.exists(history_file):
         return jsonify([])
 
@@ -188,6 +194,11 @@ def nuclei_history():
 def nuclei_report(timestamp):
     history_file = "/app/nuclei_history.json"
 
+    if os.path.isdir(history_file):
+        os.rmdir(history_file)
+        with open(history_file, "w") as f:
+            json.dump([], f)
+
     if not os.path.exists(history_file):
         return jsonify({"error": "No history found"}), 404
 
@@ -207,6 +218,9 @@ def nuclei_report(timestamp):
 def clear_nuclei_history():
     history_file = "/app/nuclei_history.json"
 
+    if os.path.isdir(history_file):
+        os.rmdir(history_file)
+
     try:
         with open(history_file, "w") as f:
             f.write("[]")
@@ -221,6 +235,11 @@ def clear_nuclei_history():
 def generar_resumen_nuclei(auto=False):
     history_file = "/app/nuclei_history.json"
     output_file = "/app/nuclei_output/nuclei_resultados.json"
+
+    if os.path.isdir(history_file):
+        os.rmdir(history_file)
+        with open(history_file, "w") as f:
+            json.dump([], f)
 
     if not os.path.exists(history_file):
         return jsonify({"error": "No history found"}), 404 if not auto else None
