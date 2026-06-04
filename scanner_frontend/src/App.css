@@ -1,14 +1,63 @@
 /* ============================================================
-   🎨 ESTILOS GENERALES DEL DASHBOARD
-   Todos los colores provienen de index.css (variables CSS)
+   🎨 VARIABLES DE COLOR (ANTES ESTABAN EN index.css)
 ============================================================ */
 
-/* ----------------------------
-   📦 Contenedor principal
----------------------------- */
+/* ============================
+   🌙 TEMA OSCURO (DEFAULT)
+============================ */
+:root {
+  --text: #e2e8f0;
+  --text-muted: #94a3b8;
+
+  --bg: #0f172a;
+  --card: #1e293b;
+  --border: #334155;
+
+  --btn-bg: #334155;
+  --btn-hover: #475569;
+
+  /* 🎨 Colores de severidad */
+  --chart-low: #22c55e;
+  --chart-medium: #eab308;
+  --chart-high: #f97316;
+  --chart-critical: #ef4444;
+  --chart-unknown: #64748b;
+
+  --bg2: #1e293b;
+}
+
+/* ============================
+   ☀️ TEMA CLARO
+============================ */
+[data-theme="light"] {
+  --text: #0f172a;
+  --text-muted: #475569;
+
+  --bg: #f8fafc;
+  --card: #ffffff;
+  --border: #cbd5e1;
+
+  --btn-bg: #e2e8f0;
+  --btn-hover: #cbd5e1;
+
+  --chart-low: #16a34a;
+  --chart-medium: #ca8a04;
+  --chart-high: #ea580c;
+  --chart-critical: #dc2626;
+  --chart-unknown: #94a3b8;
+
+  --bg2: #f1f5f9;
+}
+
+/* ============================================================
+   🎨 ESTILOS GENERALES DEL DASHBOARD
+============================================================ */
+
 .app-root {
   min-height: 100vh;
   padding: 24px;
+  background: var(--bg);
+  color: var(--text);
 }
 
 /* ----------------------------
@@ -36,7 +85,7 @@
   padding: 8px 12px;
   border-radius: 6px;
   border: 1px solid var(--border);
-  background: var(--bg-card);
+  background: var(--card);
   color: var(--text);
   cursor: pointer;
 }
@@ -55,7 +104,7 @@
    🗂️ Tarjetas
 ---------------------------- */
 .card {
-  background-color: var(--bg-card);
+  background-color: var(--card);
   border-radius: 12px;
   padding: 16px;
   border: 1px solid var(--border);
@@ -72,209 +121,42 @@
 }
 
 /* ============================================================
-   📊 SECCIÓN: RESUMEN
+   📋 TABLA DE VULNERABILIDADES (UNIFICADA)
 ============================================================ */
-
-.summary-grid {
-  display: flex;
-  gap: 16px;
-}
-
-.summary-item {
-  flex: 1;
-  background-color: var(--bg-card);
-  border-radius: 10px;
-  padding: 16px;
-  border: 1px solid var(--border);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  cursor: default;
-  user-select: none;
-}
-
-[data-theme="light"] .summary-item {
-  background-color: #ffffff;
-}
-
-.summary-label {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-muted);
-}
-
-.summary-value {
-  font-size: 26px;
-  font-weight: bold;
-  color: var(--text);
-}
-
-/* ============================================================
-   📋 TABLA DE VULNERABILIDADES
-============================================================ */
-
-.table-wrapper {
-  max-height: none;
-  overflow-y: visible;
-}
 
 .vuln-table {
   width: 100%;
   border-collapse: collapse;
+  margin-top: 15px;
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  overflow: hidden;
   font-size: 13px;
 }
 
-.vuln-table th,
-.vuln-table td {
-  padding: 8px;
-  border-bottom: 1px solid var(--border);
+.vuln-table th {
+  background: #161b22;
+  padding: 12px;
+  text-align: left;
+  font-weight: bold;
+  color: #58a6ff;
+  border-bottom: 1px solid #30363d;
 }
 
-.vuln-table th {
-  text-align: left;
-  color: #0EA5E9;
-  position: sticky;
-  top: 0;
-  background-color: var(--bg-card);
-  font-weight: 600;
+.vuln-table td {
+  padding: 10px;
+  border-bottom: 1px solid #21262d;
+  color: #c9d1d9;
 }
 
 .vuln-table tr:hover {
-  background-color: rgba(148, 163, 184, 0.15);
-}
-
-/* ----------------------------
-   🎨 Etiquetas de severidad
----------------------------- */
-.sev-low {
-  background-color: #22c55e;
-  color: white !important;
-  font-weight: 600;
-  padding: 4px 8px;
-  border-radius: 6px;
-  text-align: center;
-}
-
-.sev-medium {
-  background-color: #eab308;
-  color: white !important;
-  font-weight: 600;
-  padding: 4px 8px;
-  border-radius: 6px;
-  text-align: center;
-}
-
-.sev-high {
-  background-color: #f97316;
-  color: white !important;
-  font-weight: 600;
-  padding: 4px 8px;
-  border-radius: 6px;
-  text-align: center;
-}
-
-.sev-critical {
-  background-color: #ef4444;
-  color: white !important;
-  font-weight: 600;
-  padding: 4px 8px;
-  border-radius: 6px;
-  text-align: center;
+  background: #1c2128;
 }
 
 /* ============================================================
-   📈 GRÁFICOS
+   🎨 Etiquetas de severidad (UNIFICADAS)
 ============================================================ */
-
-.charts-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-
-.chart-center {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 220px;
-}
-
-/* ============================================================
-   🔗 ENLACES CVE (clic → morado temporal)
-============================================================ */
-
-.cve-link:active {
-  color: #A855F7 !important;
-}
-
-/* ============================================================
-   🧩 ACORDEÓN PREMIUM (InfoSistema)
-============================================================ */
-
-.accordion {
-  margin-top: 14px;
-  border-radius: 8px;
-  overflow: hidden;
-  border: 1px solid var(--border);
-  background-color: var(--bg-card);
-}
-
-.accordion-header {
-  padding: 10px 12px;
-  cursor: pointer;
-  font-weight: 600;
-  color: #0EA5E9;
-  display: flex;
-  align-items: center;
-  transition: background 0.2s ease;
-}
-
-.accordion-header:hover {
-  background-color: rgba(14, 165, 233, 0.15);
-}
-
-.accordion-content {
-  padding: 10px 14px;
-  animation: fadeIn 0.25s ease;
-}
-
-.accordion-item {
-  padding: 4px 0;
-  font-size: 14px;
-  color: var(--text);
-}
-
-/* Animación suave */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-4px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-
-/* ============================
-   ESTILOS PARA NUCLEI
-============================ */
-
-.form-row {
-  display: flex;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.input-text {
-  flex: 1;
-  padding: 10px;
-  border-radius: 6px;
-  border: 1px solid var(--border);
-  background: var(--bg2);
-  color: var(--text);
-}
 
 .sev-badge {
   padding: 4px 8px;
@@ -282,11 +164,60 @@
   font-size: 0.8rem;
   font-weight: bold;
   text-transform: uppercase;
+  color: white;
 }
 
-.sev-critical { background: #ff2e2e; color: white; }
-.sev-high { background: #ff7b00; color: white; }
-.sev-medium { background: #ffcc00; color: black; }
-.sev-low { background: #00c853; color: white; }
-.sev-info { background: #2196f3; color: white; }
+.sev-critical { background: var(--chart-critical); }
+.sev-high     { background: var(--chart-high); }
+.sev-medium   { background: var(--chart-medium); color: black; }
+.sev-low      { background: var(--chart-low); }
+.sev-info     { background: #2196f3; }
+
+/* ============================================================
+   📌 BARRA DE PROGRESO REAL (NUCLEI)
+============================================================ */
+
+.progress-wrapper {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 320px;
+  background: rgba(0, 0, 0, 0.75);
+  padding: 14px 18px;
+  border-radius: 12px;
+  color: white;
+  text-align: center;
+  z-index: 9999;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  backdrop-filter: blur(4px);
+}
+
+.progress-bar {
+  width: 100%;
+  height: 10px;
+  background: #333;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #0EA5E9, #38bdf8);
+  width: 0%;
+  transition: width 0.25s ease;
+}
+
+.progress-text {
+  font-size: 14px;
+  margin: 0;
+  color: #e2e8f0;
+}
+
+.progress-template {
+  font-size: 12px;
+  margin-top: 4px;
+  color: #94a3b8;
+}
 

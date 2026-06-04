@@ -18,7 +18,7 @@ RUN apt-get update && \
     update-ca-certificates
 
 # -----------------------------
-# 2. Instalar Nuclei v3.8.0 (última versión estable)
+# 2. Instalar Nuclei v3.8.0
 # -----------------------------
 RUN wget https://github.com/projectdiscovery/nuclei/releases/download/v3.8.0/nuclei_3.8.0_linux_amd64.zip -O nuclei.zip && \
     unzip nuclei.zip && \
@@ -43,31 +43,41 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY scanner_backend/ /app/
 
 # -----------------------------
-# 6. Archivos de cron
+# 6. Copiar scripts correctos
 # -----------------------------
-COPY scanner_server/crontab.txt /etc/cron.d/cve-cron
-COPY scanner_server/run.sh /app/server_run.sh
+COPY scanner_backend/start.sh /app/start.sh
+COPY scanner_backend/run.sh /app/run.sh
 
 # -----------------------------
-# 7. Permisos
+# 7. Archivos de cron
+# -----------------------------
+COPY scanner_server/crontab.txt /etc/cron.d/cve-cron
+
+# -----------------------------
+# 8. Permisos
 # -----------------------------
 RUN chmod +x /app/start.sh && \
     chmod +x /app/run.sh && \
-    chmod +x /app/server_run.sh && \
     chmod 0644 /etc/cron.d/cve-cron
 
 # -----------------------------
-# 8. Crear carpetas necesarias
+# 9. Crear carpetas necesarias
 # -----------------------------
 RUN mkdir -p /app/output && \
     mkdir -p /app/nuclei_output
 
 # -----------------------------
-# 9. Activar cron
+# 10. Activar cron
 # -----------------------------
 RUN crontab /etc/cron.d/cve-cron
 
-EXPOSE 9000
+# -----------------------------
+# 11. Exponer puerto correcto
+# -----------------------------
+EXPOSE 9100
 
+# -----------------------------
+# 12. Ejecutar backend
+# -----------------------------
 ENTRYPOINT ["/app/start.sh"]
 

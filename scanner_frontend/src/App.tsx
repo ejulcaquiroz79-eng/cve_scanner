@@ -1,25 +1,18 @@
-/* ============================================================
-   APP PRINCIPAL DEL DASHBOARD
-   - Maneja el tema claro/oscuro
-   - Carga datos del backend
-   - Renderiza tablas y gráficos
-============================================================ */
-
 import './App.css';
 import { useState, useEffect } from 'react';
+import { Routes, Route, Link } from "react-router-dom";
+
 import { VulnerabilidadesTable } from "./VulnerabilidadesTable";
 import type { Vulnerabilidad } from "./types";
 import { GraficoSeveridad } from "./GraficoSeveridad";
 import { GraficoScore } from "./GraficoScore";
 import { GraficoFechas } from "./GraficoFechas";
+import InfoSistema from "./InfoSistema";
 
-function App() {
+import NucleiScanner from "./NucleiScanner";
 
-  /* ------------------------------------------------------------
-     🎨 SISTEMA DE TEMA (dark azul moderno / light moderno)
-     - Se guarda en localStorage
-     - Se aplica como data-theme="light" o data-theme="dark"
-  ------------------------------------------------------------ */
+function Dashboard() {
+
   const [theme, setTheme] = useState(
     localStorage.getItem("theme") || "dark"
   );
@@ -33,67 +26,50 @@ function App() {
     setTheme(theme === "light" ? "dark" : "light");
   };
 
-  /* ------------------------------------------------------------
-     🚀 EJECUTAR ESCANEO AUTOMÁTICO AL ENTRAR AL DASHBOARD
-     - Llama a /api/scan (backend)
-     - Genera un nuevo reporte y actualiza historial
-  ------------------------------------------------------------ */
   useEffect(() => {
     fetch("http://localhost:9000/api/scan", { method: "POST" })
       .then(() => console.log("Escaneo ejecutado"))
       .catch(() => console.log("Error ejecutando escaneo"));
   }, []);
 
-  /* ------------------------------------------------------------
-     📡 CARGA DE DATOS DESDE EL BACKEND
-  ------------------------------------------------------------ */
   const [vulns, setVulns] = useState<Vulnerabilidad[]>([]);
 
   useEffect(() => {
     fetch("http://localhost:9000/api/reporte")
       .then(res => res.json())
       .then(data => {
-        setVulns(data.vulnerabilidades || []);
+        setVulns(data.results || data.vulnerabilidades || []);
       })
       .catch(err => {
         console.error("Error cargando datos del backend:", err);
       });
   }, []);
 
-  /* ------------------------------------------------------------
-     🖥️ RENDER DEL DASHBOARD
-  ------------------------------------------------------------ */
   return (
     <div className="app-root">
       
-      {/* ENCABEZADO */}
       <header className="app-header">
         <div>
           <h1>CVE Scanner Dashboard</h1>
           <p>Resumen de vulnerabilidades detectadas</p>
         </div>
 
-        {/* BOTÓN DE TEMA */}
         <button onClick={toggleTheme} className="theme-button">
           Cambiar tema
         </button>
-        
-        {/* BOTÓN DRIVERS */}
-        <a href="/sistema" className="theme-button">
-          Información de drivers encontrados
-        </a>
 
-        {/* BOTÓN NUCLEI */}
-        <a href="/nuclei" className="theme-button">
+        <Link to="/sistema" className="theme-button">
+          Información de drivers encontrados
+        </Link>
+
+        <Link to="/nuclei" className="theme-button">
           Escáner Nuclei
-        </a>
+        </Link>
 
       </header>
 
-      {/* CONTENIDO PRINCIPAL */}
       <main className="app-main">
 
-        {/* RESUMEN */}
         <section className="card">
           <h2>Resumen</h2>
           <div className="summary-grid">
@@ -104,25 +80,21 @@ function App() {
           </div>
         </section>
 
-        {/* TABLA */}
         <section className="card full">
           <h2>Vulnerabilidades detectadas</h2>
           <VulnerabilidadesTable data={vulns} />
         </section>
 
-        {/* GRÁFICO SEVERIDAD */}
         <section className="card">
           <h2>Gráfico por severidad</h2>
           <GraficoSeveridad data={vulns} />
         </section>
 
-        {/* GRÁFICO SCORE */}
         <section className="card">
           <h2>Score Ponderado</h2>
           <GraficoScore data={vulns} />
         </section>
 
-        {/* GRÁFICO EVOLUCIÓN */}
         <section className="card full">
           <h2>Evolución de vulnerabilidades</h2>
           <GraficoFechas data={vulns} />
@@ -133,5 +105,15 @@ function App() {
   );
 }
 
-export default App;
+export default function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<Dashboard />} />
+      <Route path="/nuclei" element={<NucleiScanner />} />
+      <Route path="/sistema" element={<InfoSistema />} />
+      {/* fallback */}
+      <Route path="*" element={<Dashboard />} />
+    </Routes>
+  );
+}
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { InfoSistema } from "./InfoSistema";
+import InfoSistema from "./InfoSistema";
 
 export default function Sistema() {
   const [drivers, setDrivers] = useState(null);
@@ -34,7 +34,7 @@ export default function Sistema() {
       ⬅ Volver al inicio
     </a>
       {/* Mostrar InfoSistema */}
-      <InfoSistema data={drivers} />
+      <InfoSistema />
     </div>
   );
 }

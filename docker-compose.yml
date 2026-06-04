@@ -7,15 +7,26 @@ services:
     privileged: true
     dns:
       - 8.8.8.8
+
     volumes:
       - ./scanner_backend/output:/app/output
+
+      # ⭐ Reportes Nuclei → carpeta local
+      - ./scanner_backend/nuclei_output:/app/nuclei_output
+
+      # ⭐ Historial Nuclei → archivo local
+      - ./scanner_backend/nuclei_output/nuclei_history.json:/app/nuclei_history.json
+
       - /proc:/proc
       - /sys:/sys
       - /dev:/dev
+
     ports:
-      - "9000:9000"
+      - "9000:9100"
+
     extra_hosts:
       - "host.docker.internal:host-gateway"
+
     networks:
       - cve_net
 
@@ -31,4 +42,5 @@ services:
 
 networks:
   cve_net:
+    driver: bridge
 

@@ -2,6 +2,7 @@ import platform
 import subprocess
 import json
 import os
+import datetime
 
 # ============================================================
 #  UTILIDAD PARA EJECUTAR COMANDOS
@@ -28,7 +29,7 @@ def get_cpu_info():
     cpu = run_cmd("lscpu | grep 'Model name' | awk -F ':' '{print $2}'")
     if cpu == "N/A":
         cpu = run_cmd("cat /proc/cpuinfo | grep 'model name' | head -1 | awk -F ':' '{print $2}'")
-    return cpu.strip()
+    return cpu.strip() if cpu != "N/A" else "N/A"
 
 
 # ============================================================
@@ -37,7 +38,12 @@ def get_cpu_info():
 def get_bios_info():
     bios = run_cmd("dmidecode -s bios-version")
     vendor = run_cmd("dmidecode -s bios-vendor")
+
+    if bios == "N/A" or vendor == "N/A":
+        return "N/A"
+
     return f"{vendor} {bios}".strip()
+
 
 def get_uefi_info():
     return run_cmd("ls /sys/firmware/efi 2>/dev/null && echo 'UEFI' || echo 'Legacy BIOS'")
@@ -85,19 +91,27 @@ def get_disks():
 
 
 # ============================================================
-#  FUNCIÓN PRINCIPAL QUE scanner.py NECESITA
+#  FUNCIÓN PRINCIPAL QUE USA EL FRONTEND
 # ============================================================
 def scan_drivers_summary():
     return {
+        "arquitectura": platform.machine(),
         "kernel_version": get_kernel(),
+        "os_contenedor": get_os_info(),
+
+        # Nuevos campos que tu frontend espera
+        "escaneado": "localhost",
+        "fecha_detectado": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+
+        # Listas reales
+        "interfaces_red": get_network_interfaces(),
+        "discos_detectados": get_disks(),
+        "modulos_kernel": get_loaded_modules(),
+
+        # Información adicional útil
         "cpu": get_cpu_info(),
         "bios": get_bios_info(),
         "uefi": get_uefi_info(),
-        "modulos_kernel": get_loaded_modules(),
-        "os_contenedor": get_os_info(),
-        "interfaces_red": get_network_interfaces(),
-        "discos_detectados": get_disks(),
-        "arquitectura": platform.machine()
     }
 
 

@@ -3,12 +3,50 @@ import "./App.css";
 
 export default function NucleiScanner() {
   const [loading, setLoading] = useState(false);
-  const [results, setResults] = useState([]);
-  const [history, setHistory] = useState([]);
+  const [progress, setProgress] = useState(0);
+  const [currentTemplate, setCurrentTemplate] = useState("");
+  const [results, setResults] = useState<any[]>([]);
+  const [history, setHistory] = useState<any[]>([]);
 
-  // Ejecutar escaneo automático (sin target)
+  // -----------------------------
+  //  PROGRESO REAL (SSE)
+  // -----------------------------
+  const startRealProgress = () => {
+    const evtSource = new EventSource("http://localhost:9000/api/nuclei/progress");
+
+    evtSource.onmessage = (event) => {
+      if (event.data === "done") {
+        setProgress(100);
+        setCurrentTemplate("Finalizando...");
+        setTimeout(() => setLoading(false), 800);
+        evtSource.close();
+        return;
+      }
+
+      const [total, current, template] = event.data.split("|");
+
+      if (template) setCurrentTemplate(template);
+
+      if (Number(total) > 0) {
+        const pct = Math.round((Number(current) / Number(total)) * 100);
+        setProgress(pct);
+      }
+    };
+
+    evtSource.onerror = () => {
+      evtSource.close();
+    };
+  };
+
+  // -----------------------------
+  //  Ejecutar escaneo automático
+  // -----------------------------
   const runAutoScan = async () => {
     setLoading(true);
+    setProgress(0);
+    setCurrentTemplate("Iniciando...");
+
+    startRealProgress();
 
     try {
       const res = await fetch("http://localhost:9000/api/nuclei/run", {
@@ -22,26 +60,50 @@ export default function NucleiScanner() {
       if (data.error) {
         alert("Error ejecutando el escaneo automático");
       } else {
-        setResults(data.results || []);
+        // ⭐ Después del escaneo, cargar el resumen limpio
+        loadResumen();
         loadHistory();
       }
     } catch (err) {
       console.error("Error ejecutando escaneo automático:", err);
     }
-
-    setLoading(false);
   };
 
+  // -----------------------------
+  //  Cargar resumen limpio
+  // -----------------------------
+  const loadResumen = async () => {
+    try {
+      const res = await fetch("http://localhost:9000/api/nuclei/resumen");
+      const data = await res.json();
+
+      if (Array.isArray(data)) {
+        setResults(data);
+      } else {
+        setResults([]);
+      }
+    } catch (err) {
+      console.error("Error cargando resumen:", err);
+      setResults([]);
+    }
+  };
+
+  // -----------------------------
+  //  Cargar historial
+  // -----------------------------
   const loadHistory = async () => {
     try {
       const res = await fetch("http://localhost:9000/api/nuclei/history");
       const data = await res.json();
-      setHistory(data);
+      setHistory(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Error cargando historial:", err);
     }
   };
 
+  // -----------------------------
+  //  Borrar historial
+  // -----------------------------
   const clearHistory = async () => {
     try {
       const res = await fetch("http://localhost:9000/api/nuclei/clear-history", {
@@ -61,10 +123,11 @@ export default function NucleiScanner() {
 
   useEffect(() => {
     loadHistory();
+    loadResumen(); // ⭐ Cargar resumen al iniciar
   }, []);
 
   const colorSeveridad = (sev: string) => {
-    const s = sev.toLowerCase();
+    const s = sev?.toLowerCase() || "info";
     if (s === "critical") return "sev-critical";
     if (s === "high") return "sev-high";
     if (s === "medium") return "sev-medium";
@@ -109,36 +172,66 @@ export default function NucleiScanner() {
           </button>
         </section>
 
-        {/* RESULTADOS */}
-        <section className="card full">
-          <h2>Resultados del escaneo</h2>
+        {/* BARRA DE PROGRESO REAL */}
+        {loading && (
+          <div className="progress-wrapper">
+            <div className="progress-bar">
+              <div className="progress-fill" style={{ width: `${progress}%` }}></div>
+            </div>
+            <p className="progress-text">Progreso: {progress}%</p>
+            <p className="progress-template">Plantilla: {currentTemplate}</p>
+          </div>
+        )}
 
-          {results.length === 0 ? (
-            <p>No hay resultados aún.</p>
-          ) : (
-            <table className="vuln-table">
-              <thead>
+        {/* RESULTADOS DEL ESCÁNER DE NUCLEI */}
+        <section className="card full">
+          <h2>Resultados del escáner de Nuclei</h2>
+
+          <table className="vuln-table">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Severidad</th>
+                <th>Plantilla</th>
+                <th>ID</th>
+                <th>Detectado en</th>
+                <th>IP</th>
+                <th>Puerto</th>
+                <th>Fecha</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {results.length === 0 ? (
                 <tr>
-                  <th>Plantilla</th>
-                  <th>Severidad</th>
-                  <th>Descripción</th>
+                  <td colSpan={9} style={{ textAlign: "center", padding: "10px" }}>
+                    No hay resultados aún.
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {results.map((r: any, i: number) => (
+              ) : (
+                results.map((r: any, i: number) => (
                   <tr key={i}>
-                    <td>{r.template}</td>
+                    <td>{r.nombre || "N/A"}</td>
+                    <td>{r.descripcion || "Sin descripción"}</td>
+
                     <td>
-                      <span className={`sev-badge ${colorSeveridad(r.severity)}`}>
-                        {r.severity}
+                      <span className={`sev-badge ${colorSeveridad(r.severidad)}`}>
+                        {r.severidad || "info"}
                       </span>
                     </td>
-                    <td>{r.description || "Sin descripción"}</td>
+
+                    <td>{r.plantilla || "N/A"}</td>
+                    <td>{r.id || "N/A"}</td>
+                    <td>{r.detectado_en || "N/A"}</td>
+                    <td>{r.ip || "N/A"}</td>
+                    <td>{r.puerto || "N/A"}</td>
+                    <td>{r.fecha ? r.fecha.split("T")[0] : "N/A"}</td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
+                ))
+              )}
+            </tbody>
+          </table>
         </section>
 
         {/* HISTORIAL */}

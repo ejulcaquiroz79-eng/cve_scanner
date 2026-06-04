@@ -10,7 +10,7 @@ python3 /app/server.py &
 sleep 3
 
 echo "=== Ejecutando escaneo automático del host ==="
-curl -X POST http://localhost:9000/api/nuclei/run
+curl -X POST http://localhost:9100/api/nuclei/run
 
 echo "=== Escaneo automático completado ==="
 
